@@ -38,6 +38,16 @@ public sealed class FirstPersonMovement : MonoBehaviour
         Cursor.visible = true;
     }
 
+    public void PlaceAt(Transform point)
+    {
+        controller.enabled = false;
+        transform.SetPositionAndRotation(point.position, point.rotation);
+        pitch = 0f;
+        verticalSpeed = 0f;
+        view.localRotation = Quaternion.identity;
+        controller.enabled = true;
+    }
+
     private void Update()
     {
         var aim = look.ReadValue<Vector2>();
