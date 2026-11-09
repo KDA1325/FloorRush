@@ -7,7 +7,7 @@ public sealed class RoundDisplay : MonoBehaviour
     private Font font;
     private GUIStyle caption, button;
     private InputAction point, click;
-    private Rect RetryButton => new Rect(Screen.width * .5f - 76, Screen.height * .5f + 3, 152, 42);
+    private Rect ResultButton => new Rect(Screen.width * .5f - 76, Screen.height * .5f + 3, 152, 42);
 
     private void Awake()
     {
@@ -24,7 +24,7 @@ public sealed class RoundDisplay : MonoBehaviour
         if (round.Result == CallResult.Waiting || !click.WasPressedThisFrame()) return;
         Vector2 pointer = point.ReadValue<Vector2>();
         pointer.y = Screen.height - pointer.y;
-        if (RetryButton.Contains(pointer)) round.Restart();
+        if (ResultButton.Contains(pointer)) round.ContinueFromResult();
     }
 
     private void OnGUI()
@@ -46,6 +46,9 @@ public sealed class RoundDisplay : MonoBehaviour
             _ => "엘리베이터를 놓쳤습니다"
         };
         GUI.Box(new Rect(x - 154, y - 60, 308, 54), message, caption);
-        GUI.Box(RetryButton, "다시 시도", button);
+        string action = "다시 시도";
+        if (round.Result == CallResult.Boarded)
+            action = round.IsFinalStage ? "처음부터" : "다음 스테이지";
+        GUI.Box(ResultButton, action, button);
     }
 }

@@ -3,9 +3,22 @@ using UnityEngine;
 public sealed class ElevatorRound : MonoBehaviour
 {
     public static ElevatorRound Instance { get; private set; }
-    [SerializeField] private int currentFloor = 8;
-    [SerializeField] private int destinationFloor = 1;
-    [SerializeField, Min(.1f)] private float departureSeconds = 6f;
+    [System.Serializable]
+    private struct Stage
+    {
+        public int currentFloor;
+        public int destinationFloor;
+        [Min(.1f)] public float departureSeconds;
+        [Tooltip("스폰 기준점의 로컬 좌표로 지정하는 출발 위치")]
+        public Vector3 spawnOffset;
+    }
+
+    [SerializeField] private Stage apartment = new Stage { currentFloor = 8, destinationFloor = 1, departureSeconds = 6f };
+    [SerializeField] private Stage office = new Stage
+    {
+        currentFloor = 1, destinationFloor = 6, departureSeconds = 7f,
+        spawnOffset = new Vector3(-1.25f, 0f, -3.75f)
+    };
     [SerializeField, Min(.1f)] private float closingSeconds = 2f;
     [SerializeField] private Transform spawn, cabin, leftDoor, rightDoor;
     [SerializeField] private TextMesh floorSign;
@@ -13,8 +26,11 @@ public sealed class ElevatorRound : MonoBehaviour
 
     private Vector3 leftOpen, rightOpen;
     private CallAttempt attempt;
+    private bool atOffice;
+    private Stage CurrentStage => atOffice ? office : apartment;
+    public bool IsFinalStage => atOffice;
     public CallResult Result => attempt.Result;
-    public string FloorGuide => $"현재 위치는 {currentFloor}층, 목적지는 {destinationFloor}층";
+    public string FloorGuide => $"현재 위치는 {CurrentStage.currentFloor}층, 목적지는 {CurrentStage.destinationFloor}층";
 
     private void Awake()
     {
@@ -36,18 +52,26 @@ public sealed class ElevatorRound : MonoBehaviour
 
     public void Restart()
     {
-        attempt = new CallAttempt(currentFloor, destinationFloor, Time.timeAsDouble + departureSeconds);
+        var stage = CurrentStage;
+        attempt = new CallAttempt(stage.currentFloor, stage.destinationFloor, Time.timeAsDouble + stage.departureSeconds);
         SetDoors(0f);
-        floorSign.text = currentFloor.ToString("00");
-        player.PlaceAt(spawn);
+        floorSign.text = stage.currentFloor.ToString("00");
+        player.PlaceAt(spawn, stage.spawnOffset);
         player.enabled = true;
+    }
+
+    public void ContinueFromResult()
+    {
+        if (Result == CallResult.Waiting) return;
+        if (Result == CallResult.Boarded) atOffice = !atOffice;
+        Restart();
     }
 
     private void Update()
     {
         if (Result != CallResult.Waiting) return;
         double now = Time.timeAsDouble;
-        SetDoors(1f - Mathf.Clamp01((float)(attempt.Deadline - now) / Mathf.Min(closingSeconds, departureSeconds)));
+        SetDoors(1f - Mathf.Clamp01((float)(attempt.Deadline - now) / Mathf.Min(closingSeconds, CurrentStage.departureSeconds)));
         Evaluate(now, null);
     }
 
@@ -63,7 +87,8 @@ public sealed class ElevatorRound : MonoBehaviour
         if (Result == CallResult.Missed || Result == CallResult.Boarded)
         {
             SetDoors(1f);
-            floorSign.text = (currentFloor + System.Math.Sign(destinationFloor - currentFloor)).ToString("00");
+            var stage = CurrentStage;
+            floorSign.text = (stage.currentFloor + System.Math.Sign(stage.destinationFloor - stage.currentFloor)).ToString("00");
         }
     }
 
