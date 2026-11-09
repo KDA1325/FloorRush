@@ -38,10 +38,10 @@ public sealed class FirstPersonMovement : MonoBehaviour
         Cursor.visible = true;
     }
 
-    public void PlaceAt(Transform point)
+    public void PlaceAt(Transform point, Vector3 localOffset = default)
     {
         controller.enabled = false;
-        transform.SetPositionAndRotation(point.position, point.rotation);
+        transform.SetPositionAndRotation(point.TransformPoint(localOffset), point.rotation);
         pitch = 0f;
         verticalSpeed = 0f;
         view.localRotation = Quaternion.identity;
