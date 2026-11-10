@@ -21,7 +21,7 @@ public sealed class RoundDisplay : MonoBehaviour
 
     private void Update()
     {
-        if (round.Result == CallResult.Waiting || !click.WasPressedThisFrame()) return;
+        if (!round.ResultVisible || !click.WasPressedThisFrame()) return;
         Vector2 pointer = point.ReadValue<Vector2>();
         pointer.y = Screen.height - pointer.y;
         if (ResultButton.Contains(pointer)) round.ContinueFromResult();
@@ -39,6 +39,8 @@ public sealed class RoundDisplay : MonoBehaviour
             GUI.DrawTexture(new Rect(x - 2, y - 2, 4, 4), Texture2D.whiteTexture);
             return;
         }
+
+        if (!round.ResultVisible) return;
 
         string message = round.Result switch {
             CallResult.Boarded => "탑승 성공",

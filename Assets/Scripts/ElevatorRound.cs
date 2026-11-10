@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public sealed class ElevatorRound : MonoBehaviour
@@ -26,10 +27,14 @@ public sealed class ElevatorRound : MonoBehaviour
 
     private Vector3 leftOpen, rightOpen;
     private CallAttempt attempt;
+    private Coroutine boardingSequence;
+    private float doorClosure;
+    private bool boarding;
     private bool atOffice;
     private Stage CurrentStage => atOffice ? office : apartment;
     public bool IsFinalStage => atOffice;
     public CallResult Result => attempt.Result;
+    public bool ResultVisible => Result != CallResult.Waiting && !boarding;
     public string FloorGuide => $"현재 위치는 {CurrentStage.currentFloor}층, 목적지는 {CurrentStage.destinationFloor}층";
 
     private void Awake()
@@ -52,6 +57,12 @@ public sealed class ElevatorRound : MonoBehaviour
 
     public void Restart()
     {
+        if (boardingSequence != null)
+        {
+            StopCoroutine(boardingSequence);
+            boardingSequence = null;
+        }
+        boarding = false;
         var stage = CurrentStage;
         attempt = new CallAttempt(stage.currentFloor, stage.destinationFloor, Time.timeAsDouble + stage.departureSeconds);
         SetDoors(0f);
@@ -62,7 +73,7 @@ public sealed class ElevatorRound : MonoBehaviour
 
     public void ContinueFromResult()
     {
-        if (Result == CallResult.Waiting) return;
+        if (!ResultVisible) return;
         if (Result == CallResult.Boarded) atOffice = !atOffice;
         Restart();
     }
@@ -83,17 +94,48 @@ public sealed class ElevatorRound : MonoBehaviour
         attempt.Evaluate(now, up);
         if (Result == CallResult.Waiting) return;
         player.enabled = false;
-        if (Result == CallResult.Boarded) player.PlaceAt(cabin);
-        if (Result == CallResult.Missed || Result == CallResult.Boarded)
+        if (Result == CallResult.Boarded)
+        {
+            boarding = true;
+            boardingSequence = StartCoroutine(BoardAndDepart());
+        }
+        else if (Result == CallResult.Missed)
         {
             SetDoors(1f);
-            var stage = CurrentStage;
-            floorSign.text = (stage.currentFloor + System.Math.Sign(stage.destinationFloor - stage.currentFloor)).ToString("00");
+            ShowDepartedFloor();
         }
+    }
+
+    private IEnumerator BoardAndDepart()
+    {
+        yield return SlideDoorsTo(0f);
+        var entrance = (leftDoor.position + rightDoor.position) * .5f + cabin.forward * .7f;
+        entrance.y = cabin.position.y;
+        yield return player.Board(entrance, cabin);
+        boarding = false;
+        yield return SlideDoorsTo(1f);
+        ShowDepartedFloor();
+        boardingSequence = null;
+    }
+
+    private IEnumerator SlideDoorsTo(float target)
+    {
+        while (doorClosure != target)
+        {
+            yield return null;
+            SetDoors(Mathf.MoveTowards(doorClosure, target, Time.deltaTime / closingSeconds));
+        }
+    }
+
+    private void ShowDepartedFloor()
+    {
+        var stage = CurrentStage;
+        floorSign.text = (stage.currentFloor + System.Math.Sign(stage.destinationFloor - stage.currentFloor)).ToString("00");
     }
 
     private void SetDoors(float closed)
     {
+        doorClosure = closed;
         float middle = (leftOpen.x + rightOpen.x) * .5f;
         leftDoor.localPosition = Vector3.Lerp(leftOpen, new Vector3(middle - leftDoor.localScale.x * .5f, leftOpen.y, leftOpen.z), closed);
         rightDoor.localPosition = Vector3.Lerp(rightOpen, new Vector3(middle + rightDoor.localScale.x * .5f, rightOpen.y, rightOpen.z), closed);
