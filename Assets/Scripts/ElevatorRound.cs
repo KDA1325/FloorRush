@@ -75,6 +75,7 @@ public sealed class ElevatorRound : MonoBehaviour
     private Stage CurrentStage => atOffice ? office : apartment;
     public bool IsFinalStage => atOffice;
     public CallResult Result => attempt.Result;
+    public bool? PressedDirection { get; private set; }
     public bool ResultVisible => Result != CallResult.Waiting && !boarding;
     public string FloorGuide => $"현재 위치는 {CurrentStage.currentFloor}층, 목적지는 {CurrentStage.destinationFloor}층";
 
@@ -120,6 +121,7 @@ public sealed class ElevatorRound : MonoBehaviour
             boardingSequence = null;
         }
         boarding = false;
+        PressedDirection = null;
         var stage = CurrentStage;
         attempt = new CallAttempt(stage.currentFloor, stage.destinationFloor, Time.timeAsDouble + stage.departureSeconds);
         SetDoors(Approaching ? 1f : 0f);
@@ -157,6 +159,7 @@ public sealed class ElevatorRound : MonoBehaviour
         if (Result != CallResult.Waiting) return;
         attempt.Evaluate(now, up);
         if (Result == CallResult.Waiting) return;
+        if (Result != CallResult.Missed) PressedDirection = up;
         player.enabled = false;
         if (Result == CallResult.Boarded)
         {

@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public sealed class RoundDisplay : MonoBehaviour
 {
     private ElevatorRound round;
+    private PanelInteraction panel;
     private Font font;
     private GUIStyle caption, button;
     private InputAction point, click;
@@ -12,6 +13,7 @@ public sealed class RoundDisplay : MonoBehaviour
     private void Awake()
     {
         round = GetComponent<ElevatorRound>();
+        panel = Camera.main.GetComponent<PanelInteraction>();
         point = InputSystem.actions.FindAction("UI/Point", true);
         click = InputSystem.actions.FindAction("UI/Click", true);
         font = Font.CreateDynamicFontFromOSFont(new[] { "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans CJK KR" }, 24);
@@ -36,7 +38,8 @@ public sealed class RoundDisplay : MonoBehaviour
         GUI.Box(new Rect(x - 185, 18, 370, 44), round.FloorGuide, caption);
         if (round.Result == CallResult.Waiting)
         {
-            GUI.DrawTexture(new Rect(x - 2, y - 2, 4, 4), Texture2D.whiteTexture);
+            if (panel.Target != null)
+                GUI.DrawTexture(new Rect(x - 2, y - 2, 4, 4), Texture2D.whiteTexture);
             return;
         }
 

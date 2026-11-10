@@ -1019,6 +1019,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FloorRush::HallButton
   up: 0
+  litMaterial: {fileID: 2100000, guid: 0d4af017e48ba7a41ab2b10d07c30109, type: 2}
 --- !u!1 &214982857
 GameObject:
   m_ObjectHideFlags: 0
@@ -5266,6 +5267,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: FloorRush::HallButton
   up: 1
+  litMaterial: {fileID: 2100000, guid: 0d4af017e48ba7a41ab2b10d07c30109, type: 2}
 --- !u!1001 &1655757503
 PrefabInstance:
   m_ObjectHideFlags: 0
