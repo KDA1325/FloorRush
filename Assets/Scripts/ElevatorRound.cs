@@ -33,6 +33,8 @@ public sealed class ElevatorRound : MonoBehaviour
     private float doorClosure;
     private bool boarding;
     private bool atOffice;
+    private const int ApartmentApproachFloors = 3;
+    private int displayedFloor;
     private Stage CurrentStage => atOffice ? office : apartment;
     public bool IsFinalStage => atOffice;
     public CallResult Result => attempt.Result;
@@ -67,10 +69,10 @@ public sealed class ElevatorRound : MonoBehaviour
         boarding = false;
         var stage = CurrentStage;
         attempt = new CallAttempt(stage.currentFloor, stage.destinationFloor, Time.timeAsDouble + stage.departureSeconds);
-        SetDoors(0f);
+        SetDoors(atOffice ? 0f : 1f);
         cabinPassengers.Arrange();
         corridorPedestrians.Arrange();
-        floorSign.text = stage.currentFloor.ToString("00");
+        ShowFloor(stage.currentFloor + (atOffice ? 0 : ApartmentApproachFloors));
         player.PlaceAt(spawn, stage.spawnOffset);
         player.enabled = true;
     }
@@ -86,7 +88,10 @@ public sealed class ElevatorRound : MonoBehaviour
     {
         if (Result != CallResult.Waiting) return;
         double now = Time.timeAsDouble;
-        SetDoors(1f - Mathf.Clamp01((float)(attempt.Deadline - now) / Mathf.Min(closingSeconds, CurrentStage.departureSeconds)));
+        if (atOffice)
+            SetDoors(1f - Mathf.Clamp01((float)(attempt.Deadline - now) / Mathf.Min(closingSeconds, CurrentStage.departureSeconds)));
+        else
+            ShowApproachingFloor(now);
         Evaluate(now, null);
     }
 
@@ -112,6 +117,15 @@ public sealed class ElevatorRound : MonoBehaviour
 
     private IEnumerator BoardAndDepart()
     {
+        if (!atOffice)
+        {
+            while (Time.timeAsDouble < attempt.Deadline)
+            {
+                ShowApproachingFloor(Time.timeAsDouble);
+                yield return null;
+            }
+            ShowFloor(CurrentStage.currentFloor);
+        }
         yield return SlideDoorsTo(0f);
         var entrance = (leftDoor.position + rightDoor.position) * .5f + cabin.forward * .7f;
         entrance.y = cabin.position.y;
@@ -134,7 +148,21 @@ public sealed class ElevatorRound : MonoBehaviour
     private void ShowDepartedFloor()
     {
         var stage = CurrentStage;
-        floorSign.text = (stage.currentFloor + System.Math.Sign(stage.destinationFloor - stage.currentFloor)).ToString("00");
+        ShowFloor(stage.currentFloor + System.Math.Sign(stage.destinationFloor - stage.currentFloor));
+    }
+
+    private void ShowApproachingFloor(double now)
+    {
+        double remaining = (attempt.Deadline - now) / CurrentStage.departureSeconds;
+        int floorsAbove = (int)System.Math.Ceiling(remaining * ApartmentApproachFloors);
+        ShowFloor(CurrentStage.currentFloor + floorsAbove);
+    }
+
+    private void ShowFloor(int floor)
+    {
+        if (displayedFloor == floor) return;
+        displayedFloor = floor;
+        floorSign.text = floor.ToString("00");
     }
 
     private void SetDoors(float closed)
