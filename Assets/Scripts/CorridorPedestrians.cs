@@ -2,32 +2,22 @@ using UnityEngine;
 
 public sealed class CorridorPedestrians : MonoBehaviour
 {
-    [System.Serializable]
-    private struct Pair
-    {
-        public Transform first;
-        public Transform second;
-    }
+    [SerializeField, Min(.9f)] private float laneSpacing = 1.3f;
 
-    [SerializeField] private Pair[] rows;
-    [SerializeField, Min(.1f)] private float laneSpacing = 1.3f;
-
-    public void Arrange()
+    public void Arrange(int count, SpawnStrip strip)
     {
+        int rows = (count + 1) / 2;
         int openLane = Random.Range(0, 3);
-        foreach (var row in rows)
+        for (int i = 0; i < transform.childCount; i++)
         {
-            Place(row.first, openLane == 0 ? 1 : 0);
-            Place(row.second, openLane == 2 ? 1 : 2);
-            // Leave a different passage open at the next pair.
-            openLane = (openLane + Random.Range(1, 3)) % 3;
+            Transform person = transform.GetChild(i);
+            person.gameObject.SetActive(i < count);
+            if (i >= count) continue;
+            int lane = i % 2;
+            if (lane >= openLane) lane++;
+            float x = (lane - 1) * laneSpacing + Random.Range(-.1f, .1f);
+            person.localPosition = new Vector3(x, 0f, strip.Depth(i / 2, rows));
+            if (i % 2 == 1) openLane = (openLane + Random.Range(1, 3)) % 3;
         }
-    }
-
-    private void Place(Transform person, int lane)
-    {
-        Vector3 position = person.localPosition;
-        position.x = (lane - 1) * laneSpacing + Random.Range(-.1f, .1f);
-        person.localPosition = position;
     }
 }

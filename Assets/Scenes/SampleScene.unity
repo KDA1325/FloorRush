@@ -579,11 +579,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 31918531121628770, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
   m_PrefabInstance: {fileID: 67911029}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &67911031 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1316575700104495159, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
-  m_PrefabInstance: {fileID: 67911029}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &133494968
 GameObject:
   m_ObjectHideFlags: 0
@@ -1165,12 +1160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: be849d875d73f764bb5e76dc4989007e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FloorRush::CabinPassengers
-  passengers:
-  - {fileID: 1389163932}
-  - {fileID: 1034951702}
-  - {fileID: 67911031}
-  - {fileID: 1785756751}
-  maximumPassengers: 3
+  sideOffset: 0.74
 --- !u!4 &267518946
 Transform:
   m_ObjectHideFlags: 0
@@ -3327,13 +3317,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57259f81478c5e64eba4167ea4771ddf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: FloorRush::CorridorPedestrians
-  rows:
-  - first: {fileID: 1916390257}
-    second: {fileID: 381193787}
-  - first: {fileID: 2021956471}
-    second: {fileID: 330928166}
-  - first: {fileID: 1655757504}
-    second: {fileID: 2031282197}
   laneSpacing: 1.3
 --- !u!4 &769545644
 Transform:
@@ -3728,11 +3711,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 31918531121628770, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
   m_PrefabInstance: {fileID: 1034951700}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1034951702 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1316575700104495159, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
-  m_PrefabInstance: {fileID: 1034951700}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1163973293
 GameObject:
   m_ObjectHideFlags: 0
@@ -4077,11 +4055,45 @@ MonoBehaviour:
   apartment:
     currentFloor: 8
     destinationFloor: 1
+    topFloor: 11
+    startFloor: 11
+    capacity: 4
+    passengers:
+      min: 1
+      max: 3
+    pedestrians:
+      min: 6
+      max: 6
+    cabinStrip:
+      start: 7.65
+      end: 8.78
+      spacing: 0.55
+    corridorStrip:
+      start: -3.1
+      end: 4.4
+      spacing: 1.5
     departureSeconds: 6
     spawnOffset: {x: 0, y: 0, z: 0}
   office:
     currentFloor: 1
     destinationFloor: 6
+    topFloor: 6
+    startFloor: 1
+    capacity: 4
+    passengers:
+      min: 1
+      max: 3
+    pedestrians:
+      min: 6
+      max: 6
+    cabinStrip:
+      start: 7.65
+      end: 8.78
+      spacing: 0.55
+    corridorStrip:
+      start: -3.1
+      end: 4.4
+      spacing: 1.5
     departureSeconds: 7
     spawnOffset: {x: -1.25, y: 0, z: -3.75}
   closingSeconds: 2
@@ -4093,6 +4105,7 @@ MonoBehaviour:
   player: {fileID: 1179434156}
   cabinPassengers: {fileID: 267518945}
   corridorPedestrians: {fileID: 769545643}
+  passengerPrefab: {fileID: 1316575700104495159, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
 --- !u!4 &1309091845
 Transform:
   m_ObjectHideFlags: 0
@@ -4451,11 +4464,6 @@ PrefabInstance:
 --- !u!4 &1389163931 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 31918531121628770, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
-  m_PrefabInstance: {fileID: 1389163930}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1389163932 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1316575700104495159, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
   m_PrefabInstance: {fileID: 1389163930}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1393447836
@@ -5719,11 +5727,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
---- !u!1 &1785756751 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1316575700104495159, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
-  m_PrefabInstance: {fileID: 1785756750}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1785756752 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 31918531121628770, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
