@@ -25,6 +25,7 @@ public sealed class ElevatorRound : MonoBehaviour
     [SerializeField] private TextMesh floorSign;
     [SerializeField] private FirstPersonMovement player;
     [SerializeField] private CabinPassengers cabinPassengers;
+    [SerializeField] private CorridorPedestrians corridorPedestrians;
 
     private Vector3 leftOpen, rightOpen;
     private CallAttempt attempt;
@@ -68,6 +69,7 @@ public sealed class ElevatorRound : MonoBehaviour
         attempt = new CallAttempt(stage.currentFloor, stage.destinationFloor, Time.timeAsDouble + stage.departureSeconds);
         SetDoors(0f);
         cabinPassengers.Arrange();
+        corridorPedestrians.Arrange();
         floorSign.text = stage.currentFloor.ToString("00");
         player.PlaceAt(spawn, stage.spawnOffset);
         player.enabled = true;
