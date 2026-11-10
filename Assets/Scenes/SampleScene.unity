@@ -1170,7 +1170,6 @@ MonoBehaviour:
   - {fileID: 1034951702}
   - {fileID: 67911031}
   - {fileID: 1785756751}
-  maximumPassengers: 3
 --- !u!4 &267518946
 Transform:
   m_ObjectHideFlags: 0
@@ -4077,11 +4076,29 @@ MonoBehaviour:
   apartment:
     currentFloor: 8
     destinationFloor: 1
+    topFloor: 11
+    startFloor: 11
+    capacity: 4
+    passengers:
+      min: 1
+      max: 3
+    pedestrians:
+      min: 6
+      max: 6
     departureSeconds: 6
     spawnOffset: {x: 0, y: 0, z: 0}
   office:
     currentFloor: 1
     destinationFloor: 6
+    topFloor: 6
+    startFloor: 1
+    capacity: 4
+    passengers:
+      min: 1
+      max: 3
+    pedestrians:
+      min: 6
+      max: 6
     departureSeconds: 7
     spawnOffset: {x: -1.25, y: 0, z: -3.75}
   closingSeconds: 2
