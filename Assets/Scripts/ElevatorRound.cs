@@ -21,6 +21,9 @@ public sealed class ElevatorRound : MonoBehaviour
         [Tooltip("스폰 기준점의 로컬 좌표로 지정하는 출발 위치")]
         public Vector3 spawnOffset;
 
+        public int PassengerLimit => Mathf.Min(passengers.max, Mathf.Max(1, capacity) - 1, cabinStrip.Rows * 2);
+        public int PedestrianLimit => Mathf.Min(pedestrians.max, corridorStrip.Rows * 2);
+
         public void Validate()
         {
             topFloor = Mathf.Max(topFloor, Mathf.Max(currentFloor, destinationFloor));
@@ -59,6 +62,7 @@ public sealed class ElevatorRound : MonoBehaviour
     [SerializeField] private FirstPersonMovement player;
     [SerializeField] private CabinPassengers cabinPassengers;
     [SerializeField] private CorridorPedestrians corridorPedestrians;
+    [SerializeField] private GameObject passengerPrefab;
 
     private Vector3 leftOpen, rightOpen;
     private CallAttempt attempt;
@@ -84,6 +88,17 @@ public sealed class ElevatorRound : MonoBehaviour
         Instance = this;
         leftOpen = leftDoor.localPosition;
         rightOpen = rightDoor.localPosition;
+        PreparePeople(cabinPassengers.transform, Mathf.Max(apartment.PassengerLimit, office.PassengerLimit));
+        PreparePeople(corridorPedestrians.transform, Mathf.Max(apartment.PedestrianLimit, office.PedestrianLimit));
+    }
+
+    private void PreparePeople(Transform group, int needed)
+    {
+        while (group.childCount < needed)
+        {
+            GameObject person = Instantiate(passengerPrefab, group);
+            person.SetActive(false);
+        }
     }
 
     private void Start() => Restart();
@@ -108,10 +123,9 @@ public sealed class ElevatorRound : MonoBehaviour
         var stage = CurrentStage;
         attempt = new CallAttempt(stage.currentFloor, stage.destinationFloor, Time.timeAsDouble + stage.departureSeconds);
         SetDoors(Approaching ? 1f : 0f);
-        int passengerSlots = Mathf.Min(cabinPassengers.transform.childCount, stage.cabinStrip.Rows * 2);
-        passengerSlots = Mathf.Min(passengerSlots, Mathf.Max(1, stage.capacity) - 1);
+        int passengerSlots = Mathf.Min(cabinPassengers.transform.childCount, stage.PassengerLimit);
         cabinPassengers.Arrange(stage.passengers.Pick(passengerSlots), stage.cabinStrip);
-        int pedestrianSlots = Mathf.Min(corridorPedestrians.transform.childCount, stage.corridorStrip.Rows * 2);
+        int pedestrianSlots = Mathf.Min(corridorPedestrians.transform.childCount, stage.PedestrianLimit);
         corridorPedestrians.Arrange(stage.pedestrians.Pick(pedestrianSlots), stage.corridorStrip);
         ShowFloor(stage.startFloor);
         player.PlaceAt(spawn, stage.spawnOffset);

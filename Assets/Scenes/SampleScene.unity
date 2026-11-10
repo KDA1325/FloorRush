@@ -4105,6 +4105,7 @@ MonoBehaviour:
   player: {fileID: 1179434156}
   cabinPassengers: {fileID: 267518945}
   corridorPedestrians: {fileID: 769545643}
+  passengerPrefab: {fileID: 1316575700104495159, guid: 2632d4ca180368443a4ab554ba8b473c, type: 3}
 --- !u!4 &1309091845
 Transform:
   m_ObjectHideFlags: 0
