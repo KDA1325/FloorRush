@@ -15,6 +15,8 @@ public sealed class ElevatorRound : MonoBehaviour
         [InspectorName("승강기 정원 (플레이어 포함)"), Min(1)] public int capacity = 4;
         [InspectorName("승객 스폰 인원")] public SpawnRange passengers = new SpawnRange(1, 3);
         [InspectorName("복도 보행자 스폰 인원")] public SpawnRange pedestrians = new SpawnRange(6, 6);
+        [InspectorName("승강기 양옆 배치 구간")] public SpawnStrip cabinStrip = new SpawnStrip(7.65f, 8.78f, .55f);
+        [InspectorName("복도 배치 구간")] public SpawnStrip corridorStrip = new SpawnStrip(-3.1f, 4.4f, 1.5f);
         [Min(.1f)] public float departureSeconds;
         [Tooltip("스폰 기준점의 로컬 좌표로 지정하는 출발 위치")]
         public Vector3 spawnOffset;
@@ -106,9 +108,11 @@ public sealed class ElevatorRound : MonoBehaviour
         var stage = CurrentStage;
         attempt = new CallAttempt(stage.currentFloor, stage.destinationFloor, Time.timeAsDouble + stage.departureSeconds);
         SetDoors(Approaching ? 1f : 0f);
-        int passengerSlots = Mathf.Min(cabinPassengers.Slots, Mathf.Max(1, stage.capacity) - 1);
-        cabinPassengers.Arrange(stage.passengers.Pick(passengerSlots));
-        corridorPedestrians.Arrange(stage.pedestrians.Pick(corridorPedestrians.Slots));
+        int passengerSlots = Mathf.Min(cabinPassengers.transform.childCount, stage.cabinStrip.Rows * 2);
+        passengerSlots = Mathf.Min(passengerSlots, Mathf.Max(1, stage.capacity) - 1);
+        cabinPassengers.Arrange(stage.passengers.Pick(passengerSlots), stage.cabinStrip);
+        int pedestrianSlots = Mathf.Min(corridorPedestrians.transform.childCount, stage.corridorStrip.Rows * 2);
+        corridorPedestrians.Arrange(stage.pedestrians.Pick(pedestrianSlots), stage.corridorStrip);
         ShowFloor(stage.startFloor);
         player.PlaceAt(spawn, stage.spawnOffset);
         player.enabled = true;
